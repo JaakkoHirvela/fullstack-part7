@@ -7,9 +7,6 @@ export const Anecdote = ({ anecdotes }) => {
     return anecdote.id === Number(id);
   });
 
-  console.log(anecdotes);
-  console.log(id);
-  console.log(anecdote);
   return (
     <div>
       <h2>{anecdote?.content}</h2>
