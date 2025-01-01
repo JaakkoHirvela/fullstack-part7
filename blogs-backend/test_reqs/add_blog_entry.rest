@@ -1,0 +1,10 @@
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImpvZSIsImlkIjoiNjZkMzQ1NTBiZWRmZDk4YzJiYWEwNjRjIiwiaWF0IjoxNzI1MTIxOTA4LCJleHAiOjE3MjUxMjU1MDh9.B_dNo1g5wGbQSHJysID0AlD66SzZ1oUnKMBaihXteY4
+
+{
+  "title": "Joe's blog vol. 4",
+  "author": "John Doe",
+  "url": "http://johnsblog.com",
+  "likes": 5
+}

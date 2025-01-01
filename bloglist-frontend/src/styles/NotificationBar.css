@@ -1,0 +1,27 @@
+/* NotificationBar.css */
+.notification {
+  padding: 5px;
+  margin: 10px 0;
+  border-radius: 5px;
+  border: 2px solid;
+  font-size: 24px;
+  text-align: start;
+}
+
+.notification.success {
+  background-color: #d4edda;
+  border-color: #c3e6cb;
+  color: #155724;
+}
+
+.notification.error {
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
+  color: #721c24;
+}
+
+.notification.info {
+  background-color: #d1ecf1;
+  border-color: #bee5eb;
+  color: #0c5460;
+}
