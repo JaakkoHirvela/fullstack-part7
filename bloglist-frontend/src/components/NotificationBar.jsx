@@ -1,19 +1,17 @@
 import "../styles/NotificationBar.css";
-import PropTypes from "prop-types";
+import { useNotificationValue } from "../utils";
 
-const NotificationBar = ({ notification }) => {
-  if (!notification.message) {
-    return null;
+const NotificationBar = () => {
+  const notification = useNotificationValue();
+
+  if (notification) {
+    return (
+      <div className={`notification ${notification.type}`}>
+        {notification.message}
+      </div>
+    );
   }
-  return (
-    <div className={`notification ${notification.type}`}>
-      <p>{notification.message}</p>
-    </div>
-  );
-};
-
-NotificationBar.propTypes = {
-  notification: PropTypes.object.isRequired,
+  return null;
 };
 
 export default NotificationBar;

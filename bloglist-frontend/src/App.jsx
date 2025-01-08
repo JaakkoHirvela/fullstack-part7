@@ -7,41 +7,27 @@ import BlogForm from "./components/BlogForm";
 import NotificationBar from "./components/NotificationBar";
 import LoginForm from "./components/LoginForm";
 import Togglable from "./components/Togglable";
-
-const NotificationType = Object.freeze({
-  SUCCESS: "success",
-  ERROR: "error",
-  INFO: "info",
-});
+import { NotificationType, setNotification, useNotificationDispatch } from "./utils";
 
 const App = () => {
   const [blogs, setBlogs] = useState([]);
-  const [notification, setNotification] = useState({ message: "", type: NotificationType.SUCCESS });
+  const notificationDispatch = useNotificationDispatch();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [user, setUser] = useState(null);
 
   const blogFormRef = useRef();
 
-  const setSuccessNotification = (message) => {
-    setNotification({ message, type: NotificationType.SUCCESS });
-    setTimeout(() => {
-      setNotification({ message: "", type: NotificationType.SUCCESS });
-    }, 5000);
-  };
-  const setErrorNotification = (message) => {
-    setNotification({ message, type: NotificationType.ERROR });
-    setTimeout(() => {
-      setNotification({ message: "", type: NotificationType.ERROR });
-    }, 5000);
-  };
-
   useEffect(() => {
     const fetchBlogs = async () => {
-      setNotification({ message: "Loading blogs...", type: NotificationType.INFO });
-      const blogs = await blogService.getAll();
-      setSuccessNotification("Blogs loaded");
-      setBlogs(blogs);
+      setNotification(notificationDispatch, "Loading blogs...", NotificationType.INFO);
+      try {
+        const blogs = await blogService.getAll();
+        setNotification(notificationDispatch, "Blogs loaded", NotificationType.SUCCESS);
+        setBlogs(blogs);
+      } catch (error) {
+        setNotification(notificationDispatch, "Failed to load blogs: " + error.response.data.error, NotificationType.ERROR);
+      }
     };
     fetchBlogs();
   }, []);
@@ -61,12 +47,12 @@ const App = () => {
       const decodedToken = jwtDecode(loginData.token);
       loginData.id = decodedToken.id;
       window.localStorage.setItem("loggedUser", JSON.stringify(loginData));
-      setSuccessNotification("Logged in successfully as " + loginData.name);
+      setNotification(notificationDispatch, "Logged in successfully as " + loginData.name, NotificationType.SUCCESS);
       setUser(loginData);
       setUsername("");
       setPassword("");
     } catch (error) {
-      setErrorNotification("Wrong username or password");
+      setNotification(notificationDispatch, "Wrong username or password", NotificationType.ERROR);
     }
   };
 
@@ -80,12 +66,16 @@ const App = () => {
       const response = await blogService.create(newBlog, user.token);
 
       // Append the user data before adding the blog to the state.
-      response.data.user = { id: user.id, name: user.name, username: user.username };
+      response.data.user = {
+        id: user.id,
+        name: user.name,
+        username: user.username,
+      };
       setBlogs(blogs.concat(response.data));
-      setSuccessNotification(`A new blog ${newBlog.title} by ${newBlog.author} added`);
+      setNotification(notificationDispatch, `A new blog ${newBlog.title} by ${newBlog.author} added`, NotificationType.SUCCESS);
       blogFormRef.current.toggleVisibility();
     } catch (error) {
-      setErrorNotification("Failed to create blog: " + error.response.data.error);
+      setNotification(notificationDispatch, "Failed to create blog: " + error.response.data.error, NotificationType.ERROR);
     }
   };
 
@@ -95,10 +85,10 @@ const App = () => {
       const response = await blogService.update(updatedBlog, user.token);
       // Update the blog in the state.
       setBlogs(blogs.map((blog) => (blog.id === response.data.id ? { ...blog, likes: response.data.likes } : blog)));
-      setSuccessNotification(`Blog ${updatedBlog.title} liked!`);
+      setNotification(notificationDispatch, `Blog ${updatedBlog.title} liked!`, NotificationType.SUCCESS);
     } catch (error) {
       console.error("error liking blog:", error);
-      setErrorNotification("Failed to like blog: " + error.response.data.error);
+      setNotification(notificationDispatch, "Failed to like blog: " + error.response.data.error, NotificationType.ERROR);
     }
   };
 
@@ -108,10 +98,10 @@ const App = () => {
       await blogService.deleteBlog(deletedBlog.id, user.token);
       // Remove the blog from the state.
       setBlogs(blogs.filter((blog) => blog.id !== deletedBlog.id));
-      setSuccessNotification(`Blog ${deletedBlog.title} deleted!`);
+      setNotification(notificationDispatch, `Blog ${deletedBlog.title} deleted!`, NotificationType.SUCCESS);
     } catch (error) {
       console.error("error deleting blog:", error);
-      setErrorNotification("Failed to delete blog: " + error.response);
+      setNotification(notificationDispatch, "Failed to delete blog: " + error.response.data.error, NotificationType.ERROR);
     }
   };
 
@@ -119,7 +109,7 @@ const App = () => {
     return (
       <div>
         <h2>Log in</h2>
-        <NotificationBar notification={notification} />
+        <NotificationBar />
         <LoginForm onSubmit={handleLogin} username={username} password={password} setUsername={setUsername} setPassword={setPassword} />
       </div>
     ); // TODO: Clean up the login form.
@@ -127,7 +117,7 @@ const App = () => {
   return (
     <div>
       <h2>blogs</h2>
-      <NotificationBar notification={notification} />
+      <NotificationBar />
       <div style={{ paddingBottom: "10px" }}>
         Logged in as {user.name}
         <button onClick={handleLogout}>logout</button>

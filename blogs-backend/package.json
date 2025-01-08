@@ -6,7 +6,7 @@
     "start": "NODE_ENV=production node index.js",
     "dev": "NODE_ENV=development nodemon index.js",
     "testEnv": "NODE_ENV=test nodemon index.js",
-    "dev:frontend": "cd ../../bloglist-frontend && npm run dev",
+    "dev:frontend": "cd ../bloglist-frontend && npm run dev",
     "dev:all": "concurrently \"npm run dev\" \"npm run dev:frontend\"",
     "testEnv:all": "concurrently \"npm run testEnv\" \"npm run dev:frontend\"",
     "test": "NODE_ENV=test node --test --test-concurrency=1",
@@ -31,6 +31,7 @@
     "note": "Check out cross-env package for setting NODE_ENV when cross-platform"
   },
   "devDependencies": {
+    "concurrently": "^9.1.2",
     "supertest": "^7.0.0"
   }
 }
