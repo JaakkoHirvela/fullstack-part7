@@ -8,9 +8,10 @@ import NotificationBar from "./components/NotificationBar";
 import LoginForm from "./components/LoginForm";
 import Togglable from "./components/Togglable";
 import { NotificationType, setNotification, useNotificationDispatch } from "./utils";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 const App = () => {
-  const [blogs, setBlogs] = useState([]);
+  const queryClient = useQueryClient();
   const notificationDispatch = useNotificationDispatch();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -18,19 +19,23 @@ const App = () => {
 
   const blogFormRef = useRef();
 
+  const result = useQuery({
+    queryKey: ["blogs"],
+    queryFn: blogService.getAll,
+    retry: 1,
+  });
+
+  const { data: blogs, error, isLoading, isError } = result;
+
   useEffect(() => {
-    const fetchBlogs = async () => {
+    if (isLoading) {
       setNotification(notificationDispatch, "Loading blogs...", NotificationType.INFO);
-      try {
-        const blogs = await blogService.getAll();
-        setNotification(notificationDispatch, "Blogs loaded", NotificationType.SUCCESS);
-        setBlogs(blogs);
-      } catch (error) {
-        setNotification(notificationDispatch, "Failed to load blogs: " + error.response.data.error, NotificationType.ERROR);
-      }
-    };
-    fetchBlogs();
-  }, []);
+    } else if (isError) {
+      setNotification(notificationDispatch, "Failed to load blogs: " + error.message, NotificationType.ERROR);
+    } else if (blogs) {
+      setNotification(notificationDispatch, "Blogs loaded", NotificationType.SUCCESS);
+    }
+  }, [isLoading, isError, blogs, error]);
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem("loggedUser");
@@ -61,30 +66,26 @@ const App = () => {
     setUser(null);
   };
 
-  const createBlog = async (newBlog) => {
-    try {
-      const response = await blogService.create(newBlog, user.token);
-
-      // Append the user data before adding the blog to the state.
-      response.data.user = {
-        id: user.id,
-        name: user.name,
-        username: user.username,
-      };
-      setBlogs(blogs.concat(response.data));
+  const newBlogMutation = useMutation({
+    mutationFn: (newBlog) => blogService.create(newBlog, user.token),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["blogs"] });
       setNotification(notificationDispatch, `A new blog ${newBlog.title} by ${newBlog.author} added`, NotificationType.SUCCESS);
       blogFormRef.current.toggleVisibility();
-    } catch (error) {
-      setNotification(notificationDispatch, "Failed to create blog: " + error.response.data.error, NotificationType.ERROR);
-    }
-  };
+    },
+    onError: (error) => {
+      const { error: errorMessage } = error.response.data;
+      setNotification(notificationDispatch, `Failed to create blog: ${errorMessage}`, NotificationType.ERROR);
+    },
+  });
 
   const addLikeToBlog = async (blog) => {
     try {
       const updatedBlog = { ...blog, likes: blog.likes + 1 };
       const response = await blogService.update(updatedBlog, user.token);
-      // Update the blog in the state.
-      setBlogs(blogs.map((blog) => (blog.id === response.data.id ? { ...blog, likes: response.data.likes } : blog)));
+      
+      // TODO: Update the blog in the state.
+      
       setNotification(notificationDispatch, `Blog ${updatedBlog.title} liked!`, NotificationType.SUCCESS);
     } catch (error) {
       console.error("error liking blog:", error);
@@ -96,8 +97,9 @@ const App = () => {
     console.log("deleting blog", deletedBlog);
     try {
       await blogService.deleteBlog(deletedBlog.id, user.token);
-      // Remove the blog from the state.
-      setBlogs(blogs.filter((blog) => blog.id !== deletedBlog.id));
+
+      // TODO: Remove the blog from the state.
+
       setNotification(notificationDispatch, `Blog ${deletedBlog.title} deleted!`, NotificationType.SUCCESS);
     } catch (error) {
       console.error("error deleting blog:", error);
@@ -123,13 +125,12 @@ const App = () => {
         <button onClick={handleLogout}>logout</button>
       </div>
       <Togglable buttonLabel="new blog" ref={blogFormRef}>
-        <BlogForm createBlog={createBlog} />
+        <BlogForm createBlog={newBlogMutation.mutate} />
       </Togglable>
-      {blogs
-        .sort((l, r) => r.likes - l.likes) // Sort in descending order.
-        .map((blog) => (
-          <Blog key={blog.id} blog={blog} handleLike={addLikeToBlog} handleDelete={deleteBlog} user={user} />
-        ))}
+      {blogs &&
+        blogs
+          .sort((l, r) => r.likes - l.likes) // Sort in descending order.
+          .map((blog) => <Blog key={blog.id} blog={blog} handleLike={addLikeToBlog} handleDelete={deleteBlog} user={user} />)}
     </div>
   );
 };

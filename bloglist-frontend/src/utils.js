@@ -1,5 +1,6 @@
 import { useContext } from "react";
 import NotificationContext from "./components/NotificationContext";
+import { CLEAR_NOTIFICATION, SET_NOTIFICATION } from "./constants";
 
 export const useNotificationValue = () => {
   const context = useContext(NotificationContext);
@@ -20,7 +21,7 @@ export const NotificationType = Object.freeze({
 let timeout = null;
 
 export const setNotification = (dispatch, message, type, duration = 5000) => {
-  dispatch({ type: "SET_NOTIFICATION", notification: { message, type } });
+  dispatch({ type: SET_NOTIFICATION, notification: { message, type } });
 
   // Clear the previous timeout
   if (timeout) {
@@ -28,6 +29,6 @@ export const setNotification = (dispatch, message, type, duration = 5000) => {
   }
 
   timeout = setTimeout(() => {
-    dispatch({ type: "CLEAR_NOTIFICATION" });
+    dispatch({ type: CLEAR_NOTIFICATION });
   }, duration);
 };
