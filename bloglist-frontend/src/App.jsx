@@ -21,7 +21,10 @@ const App = () => {
 
   const result = useQuery({
     queryKey: ["blogs"],
-    queryFn: blogService.getAll,
+    queryFn: () => {
+      console.log("fetching blogs");
+      return blogService.getAll();
+    },
     retry: 1,
   });
 
@@ -35,7 +38,7 @@ const App = () => {
     } else if (blogs) {
       setNotification(notificationDispatch, "Blogs loaded", NotificationType.SUCCESS);
     }
-  }, [isLoading, isError, blogs, error]);
+  }, [isLoading, isError]);
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem("loggedUser");
@@ -68,8 +71,9 @@ const App = () => {
 
   const newBlogMutation = useMutation({
     mutationFn: (newBlog) => blogService.create(newBlog, user.token),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["blogs"] });
+    onSuccess: (data, variables) => {
+      const newBlog = variables;
+      queryClient.invalidateQueries(["blogs"]);
       setNotification(notificationDispatch, `A new blog ${newBlog.title} by ${newBlog.author} added`, NotificationType.SUCCESS);
       blogFormRef.current.toggleVisibility();
     },
@@ -79,33 +83,41 @@ const App = () => {
     },
   });
 
-  const addLikeToBlog = async (blog) => {
-    try {
-      const updatedBlog = { ...blog, likes: blog.likes + 1 };
-      const response = await blogService.update(updatedBlog, user.token);
-      
-      // TODO: Update the blog in the state.
-      
-      setNotification(notificationDispatch, `Blog ${updatedBlog.title} liked!`, NotificationType.SUCCESS);
-    } catch (error) {
-      console.error("error liking blog:", error);
-      setNotification(notificationDispatch, "Failed to like blog: " + error.response.data.error, NotificationType.ERROR);
-    }
-  };
+  const likeBlogMutation = useMutation({
+    mutationFn: (blog) => blogService.update({ ...blog, likes: blog.likes + 1 }, user.token),
+    onSuccess: (data, variables) => {
+      const likedBlog = variables;
 
-  const deleteBlog = async (deletedBlog) => {
-    console.log("deleting blog", deletedBlog);
-    try {
-      await blogService.deleteBlog(deletedBlog.id, user.token);
+      // Update the blog in the cache.
+      const blogs = queryClient.getQueryData(["blogs"]);
+      queryClient.setQueryData(
+        ["blogs"],
+        blogs.map((blog) => (blog.id === likedBlog.id ? { ...blog, likes: blog.likes + 1 } : blog))
+      );
+      setNotification(notificationDispatch, `Blog ${likedBlog.title} liked!`, NotificationType.SUCCESS);
+    },
+    onError: (error) => {
+      const { error: errorMessage } = error.response.data;
+      setNotification(notificationDispatch, `Failed to like blog: ${errorMessage}`, NotificationType.ERROR);
+    },
+  });
 
-      // TODO: Remove the blog from the state.
-
+  const deleteBlogMutation = useMutation({
+    mutationFn: (deletedBlog) => blogService.deleteBlog(deletedBlog.id, user.token),
+    onSuccess: (data, variables) => {
+      const deletedBlog = variables;
+      const blogs = queryClient.getQueryData(["blogs"]);
+      queryClient.setQueryData(
+        ["blogs"],
+        blogs.filter((blog) => blog.id !== deletedBlog.id)
+      );
       setNotification(notificationDispatch, `Blog ${deletedBlog.title} deleted!`, NotificationType.SUCCESS);
-    } catch (error) {
-      console.error("error deleting blog:", error);
-      setNotification(notificationDispatch, "Failed to delete blog: " + error.response.data.error, NotificationType.ERROR);
-    }
-  };
+    },
+    onError: (error) => {
+      const { error: errorMessage } = error.response.data;
+      setNotification(notificationDispatch, `Failed to delete blog: ${errorMessage}`, NotificationType.ERROR);
+    },
+  });
 
   if (user === null) {
     return (
@@ -130,7 +142,9 @@ const App = () => {
       {blogs &&
         blogs
           .sort((l, r) => r.likes - l.likes) // Sort in descending order.
-          .map((blog) => <Blog key={blog.id} blog={blog} handleLike={addLikeToBlog} handleDelete={deleteBlog} user={user} />)}
+          .map((blog) => (
+            <Blog key={blog.id} blog={blog} handleLike={likeBlogMutation.mutate} handleDelete={deleteBlogMutation.mutate} user={user} />
+          ))}
     </div>
   );
 };
