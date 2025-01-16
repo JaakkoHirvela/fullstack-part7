@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useContext } from "react";
+import { useState, useEffect, useRef, useContext, useMemo } from "react";
 import { jwtDecode } from "jwt-decode";
 import Blog from "./components/Blog";
 import blogService from "./services/blogs";
@@ -8,9 +8,9 @@ import NotificationBar from "./components/NotificationBar";
 import LoginForm from "./components/LoginForm";
 import Togglable from "./components/Togglable";
 import { NotificationType, setNotification, useNotificationDispatch } from "./utils/notificationUtils";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useUserDispatch, useUserValue } from "./utils/userUtils";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import UserContext, { CLEAR_USER, SET_USER } from "./components/UserContext";
+import { useDeleteBlogMutation, useLikeBlogMutation, useNewBlogMutation } from "./services/mutations";
 
 const App = () => {
   const queryClient = useQueryClient();
@@ -70,62 +70,24 @@ const App = () => {
     userDispatch({ type: CLEAR_USER });
   };
 
-  const newBlogMutation = useMutation({
-    mutationFn: (newBlog) => blogService.create(newBlog, user.token),
-    onSuccess: (data, variables) => {
-      const newBlog = variables;
-      queryClient.invalidateQueries(["blogs"]);
-      setNotification(notificationDispatch, `A new blog ${newBlog.title} by ${newBlog.author} added`, NotificationType.SUCCESS);
-      blogFormRef.current.toggleVisibility();
-    },
-    onError: (error) => {
-      const { error: errorMessage } = error.response.data;
-      setNotification(notificationDispatch, `Failed to create blog: ${errorMessage}`, NotificationType.ERROR);
-    },
-  });
+  const afterNewBlog = () => blogFormRef.current.toggleVisibility();
 
-  const likeBlogMutation = useMutation({
-    mutationFn: (blog) => blogService.update({ ...blog, likes: blog.likes + 1 }, user.token),
-    onSuccess: (data, variables) => {
-      const likedBlog = variables;
-
-      // Update the blog in the cache.
-      const blogs = queryClient.getQueryData(["blogs"]);
-      queryClient.setQueryData(
-        ["blogs"],
-        blogs.map((blog) => (blog.id === likedBlog.id ? { ...blog, likes: blog.likes + 1 } : blog))
-      );
-      setNotification(notificationDispatch, `Blog ${likedBlog.title} liked!`, NotificationType.SUCCESS);
-    },
-    onError: (error) => {
-      const { error: errorMessage } = error.response.data;
-      setNotification(notificationDispatch, `Failed to like blog: ${errorMessage}`, NotificationType.ERROR);
-    },
-  });
-
-  const deleteBlogMutation = useMutation({
-    mutationFn: (deletedBlog) => blogService.deleteBlog(deletedBlog.id, user.token),
-    onSuccess: (data, variables) => {
-      const deletedBlog = variables;
-      const blogs = queryClient.getQueryData(["blogs"]);
-      queryClient.setQueryData(
-        ["blogs"],
-        blogs.filter((blog) => blog.id !== deletedBlog.id)
-      );
-      setNotification(notificationDispatch, `Blog ${deletedBlog.title} deleted!`, NotificationType.SUCCESS);
-    },
-    onError: (error) => {
-      const { error: errorMessage } = error.response.data;
-      setNotification(notificationDispatch, `Failed to delete blog: ${errorMessage}`, NotificationType.ERROR);
-    },
-  });
+  const newBlogMutation = useNewBlogMutation(queryClient, user, notificationDispatch, afterNewBlog);
+  const likeBlogMutation = useLikeBlogMutation(queryClient, user, notificationDispatch);
+  const deleteBlogMutation = useDeleteBlogMutation(queryClient, user, notificationDispatch);
 
   if (user === null) {
     return (
       <div>
         <h2>Log in</h2>
         <NotificationBar />
-        <LoginForm onSubmit={handleLogin} username={username} password={password} setUsername={setUsername} setPassword={setPassword} />
+        <LoginForm
+          onSubmit={handleLogin}
+          username={username}
+          password={password}
+          setUsername={setUsername}
+          setPassword={setPassword}
+        />
       </div>
     ); // TODO: Clean up the login form.
   }
@@ -144,7 +106,13 @@ const App = () => {
         blogs
           .sort((l, r) => r.likes - l.likes) // Sort in descending order.
           .map((blog) => (
-            <Blog key={blog.id} blog={blog} handleLike={likeBlogMutation.mutate} handleDelete={deleteBlogMutation.mutate} user={user} />
+            <Blog
+              key={blog.id}
+              blog={blog}
+              handleLike={likeBlogMutation.mutate}
+              handleDelete={deleteBlogMutation.mutate}
+              user={user}
+            />
           ))}
     </div>
   );
