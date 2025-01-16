@@ -1,5 +1,5 @@
 import "../styles/NotificationBar.css";
-import { useNotificationValue } from "../utils";
+import { useNotificationValue } from "../utils/notificationUtils";
 
 const NotificationBar = () => {
   const notification = useNotificationValue();

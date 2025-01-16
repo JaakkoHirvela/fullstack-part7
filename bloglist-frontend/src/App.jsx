@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useContext } from "react";
 import { jwtDecode } from "jwt-decode";
 import Blog from "./components/Blog";
 import blogService from "./services/blogs";
@@ -7,22 +7,23 @@ import BlogForm from "./components/BlogForm";
 import NotificationBar from "./components/NotificationBar";
 import LoginForm from "./components/LoginForm";
 import Togglable from "./components/Togglable";
-import { NotificationType, setNotification, useNotificationDispatch } from "./utils";
+import { NotificationType, setNotification, useNotificationDispatch } from "./utils/notificationUtils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useUserDispatch, useUserValue } from "./utils/userUtils";
+import UserContext, { CLEAR_USER, SET_USER } from "./components/UserContext";
 
 const App = () => {
   const queryClient = useQueryClient();
   const notificationDispatch = useNotificationDispatch();
+  const [user, userDispatch] = useContext(UserContext);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [user, setUser] = useState(null);
 
   const blogFormRef = useRef();
 
   const result = useQuery({
     queryKey: ["blogs"],
     queryFn: () => {
-      console.log("fetching blogs");
       return blogService.getAll();
     },
     retry: 1,
@@ -44,7 +45,7 @@ const App = () => {
     const loggedUserJSON = window.localStorage.getItem("loggedUser");
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON);
-      setUser(user);
+      userDispatch({ type: SET_USER, user });
     }
   }, []);
 
@@ -56,7 +57,7 @@ const App = () => {
       loginData.id = decodedToken.id;
       window.localStorage.setItem("loggedUser", JSON.stringify(loginData));
       setNotification(notificationDispatch, "Logged in successfully as " + loginData.name, NotificationType.SUCCESS);
-      setUser(loginData);
+      userDispatch({ type: SET_USER, user: loginData });
       setUsername("");
       setPassword("");
     } catch (error) {
@@ -66,7 +67,7 @@ const App = () => {
 
   const handleLogout = () => {
     window.localStorage.removeItem("loggedUser");
-    setUser(null);
+    userDispatch({ type: CLEAR_USER });
   };
 
   const newBlogMutation = useMutation({

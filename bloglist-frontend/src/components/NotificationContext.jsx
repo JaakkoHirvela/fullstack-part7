@@ -1,5 +1,7 @@
 import { createContext, useReducer } from "react";
-import { CLEAR_NOTIFICATION, SET_NOTIFICATION } from "../constants";
+
+export const SET_NOTIFICATION = "SET_NOTIFICATION";
+export const CLEAR_NOTIFICATION = "CLEAR_NOTIFICATION";
 
 const notificationReducer = (state, action) => {
   switch (action.type) {
