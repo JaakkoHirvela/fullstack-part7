@@ -2,7 +2,7 @@ import ReactDOM from "react-dom/client";
 import App from "./App";
 import { NotificationContextProvider } from "./components/NotificationContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { UserContextProvider } from "./components/UserContext";
+import { UserContextProvider } from "./components/User/UserContext";
 
 const queryClient = new QueryClient();
 

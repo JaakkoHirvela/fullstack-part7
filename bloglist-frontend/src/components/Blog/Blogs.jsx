@@ -1,10 +1,10 @@
 import { useEffect, useRef } from "react";
-import { useDeleteBlogMutation, useLikeBlogMutation, useNewBlogMutation } from "../services/blogsMutations";
-import { NotificationType, setNotification, useNotificationDispatch } from "../utils/notificationUtils";
+import { useDeleteBlogMutation, useLikeBlogMutation, useNewBlogMutation } from "../../services/blogsMutations";
+import { NotificationType, setNotification, useNotificationDispatch } from "../../utils/notificationUtils";
 import BlogForm from "./BlogForm";
-import Togglable from "./Togglable";
+import Togglable from "../Togglable";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import blogService from "../services/blogs";
+import blogService from "../../services/blogs";
 import Blog from "./Blog";
 
 const Blogs = ({ user }) => {
@@ -13,9 +13,7 @@ const Blogs = ({ user }) => {
   const queryClient = useQueryClient();
   const result = useQuery({
     queryKey: ["blogs"],
-    queryFn: () => {
-      return blogService.getAll();
-    },
+    queryFn: blogService.getAll,
     retry: 1,
   });
 

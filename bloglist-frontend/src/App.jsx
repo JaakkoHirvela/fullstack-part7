@@ -5,9 +5,10 @@ import loginService from "./services/login";
 import NotificationBar from "./components/NotificationBar";
 import LoginForm from "./components/LoginForm";
 import { NotificationType, setNotification, useNotificationDispatch } from "./utils/notificationUtils";
-import UserContext, { CLEAR_USER, SET_USER } from "./components/UserContext";
-import Blogs from "./components/Blogs";
-import Users from "./components/Users";
+import UserContext, { CLEAR_USER, SET_USER } from "./components/User/UserContext";
+import Blogs from "./components/Blog/Blogs";
+import Users from "./components/User/Users";
+import UserDetails from "./components/User/UserDetail";
 
 const App = () => {
   const [user, userDispatch] = useContext(UserContext);
@@ -65,13 +66,12 @@ const App = () => {
       <h2>blogs</h2>
       <NotificationBar />
       <div style={{ paddingBottom: "10px" }}>Logged in as {user.name}</div>
-      <button onClick={handleLogout}>
-        logout
-      </button>
+      <button onClick={handleLogout}>logout</button>
       <Router>
         <Routes>
           <Route path="/" element={<Blogs user={user} />} />
           <Route path="/users" element={<Users />} />
+          <Route path="/users/:id" element={<UserDetails />} />
         </Routes>
       </Router>
     </div>
