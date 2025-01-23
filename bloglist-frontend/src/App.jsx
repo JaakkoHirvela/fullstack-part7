@@ -10,6 +10,7 @@ import Blogs from "./components/Blog/Blogs";
 import Users from "./components/User/Users";
 import UserDetails from "./components/User/UserDetail";
 import BlogDetails from "./components/Blog/BlogDetails";
+import NavigationMenu from "./components/NavigationMenu";
 
 const App = () => {
   const [user, userDispatch] = useContext(UserContext);
@@ -63,20 +64,20 @@ const App = () => {
     );
   }
   return (
-    <div>
+    <Router>
+      <NavigationMenu>
+        {user.name} logged in
+        <button onClick={handleLogout}>logout</button>
+      </NavigationMenu>
       <h2>blogs</h2>
       <NotificationBar />
-      <div style={{ paddingBottom: "10px" }}>Logged in as {user.name}</div>
-      <button onClick={handleLogout}>logout</button>
-      <Router>
-        <Routes>
-          <Route path="/" element={<Blogs user={user} />} />
-          <Route path="/blogs/:id" element={<BlogDetails />} />
-          <Route path="/users" element={<Users />} />
-          <Route path="/users/:id" element={<UserDetails />} />
-        </Routes>
-      </Router>
-    </div>
+      <Routes>
+        <Route path="/" element={<Blogs user={user} />} />
+        <Route path="/blogs/:id" element={<BlogDetails />} />
+        <Route path="/users" element={<Users />} />
+        <Route path="/users/:id" element={<UserDetails />} />
+      </Routes>
+    </Router>
   );
 };
 
