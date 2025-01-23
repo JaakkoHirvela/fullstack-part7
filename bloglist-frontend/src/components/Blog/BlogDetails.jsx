@@ -34,7 +34,7 @@ const BlogDetails = () => {
 
   return (
     <div>
-      <h3>{blog.title}</h3>
+      <h1>{`${blog.title} ${blog.author}`}</h1>
       <a href={blog.url} target="_blank" onClick={handleLinkClick}>
         {blog.url}
       </a>
@@ -43,6 +43,13 @@ const BlogDetails = () => {
       </div>
       <div>added by {blog.user.name}</div>
       <div>{blog.user.id === user.id && <button onClick={handleDelete}>remove</button>}</div>
+      {/* COMMENTS SECTION*/}
+      <h3>comments</h3>
+      <ul>
+        {blog.comments.map((comment, index) => (
+          <li key={index}>{comment}</li>
+        ))}
+      </ul>
     </div>
   );
 };

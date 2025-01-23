@@ -69,3 +69,27 @@ export const useDeleteBlogMutation = () => {
     },
   });
 };
+
+/*
+
+export const useCommentBlogMutation = () => {
+  const queryClient = useQueryClient();
+  const notificationDispatch = useNotificationDispatch();
+  return useMutation({
+    mutationFn: (comment) => blogService.commentBlog(comment.blogId, comment.content),
+    onSuccess: (data, variables) => {
+      const { blogId, comment } = variables;
+      const blogs = queryClient.getQueryData(["blogs"]);
+      queryClient.setQueryData(
+        ["blogs"],
+        blogs.map((blog) => (blog.id === blogId ? { ...blog, comments: blog.comments.concat(comment) } : blog))
+      );
+      setNotification(notificationDispatch, `Comment added!`, NotificationType.SUCCESS);
+    },
+    onError: (error) => {
+      const { error: errorMessage } = error.response.data;
+      setNotification(notificationDispatch, `Failed to add comment: ${errorMessage}`, NotificationType.ERROR);
+    },
+  });
+}
+*/
