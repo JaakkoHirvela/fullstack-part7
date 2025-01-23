@@ -1,9 +1,13 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import blogService from "./blogs";
-import { NotificationType, setNotification } from "../utils/notificationUtils";
+import { NotificationType, setNotification, useNotificationDispatch } from "../utils/notificationUtils";
+import { useUserValue } from "../components/User/UserContext";
 
-export const useNewBlogMutation = (queryClient, user, notificationDispatch, afterSuccess) =>
-  useMutation({
+export const useNewBlogMutation = (afterSuccess) => {
+  const user = useUserValue();
+  const queryClient = useQueryClient();
+  const notificationDispatch = useNotificationDispatch();
+  return useMutation({
     mutationFn: (newBlog) => blogService.create(newBlog, user.token),
     onSuccess: (data, variables) => {
       const newBlog = variables;
@@ -20,9 +24,13 @@ export const useNewBlogMutation = (queryClient, user, notificationDispatch, afte
       setNotification(notificationDispatch, `Failed to create blog: ${errorMessage}`, NotificationType.ERROR);
     },
   });
+};
 
-export const useLikeBlogMutation = (queryClient, user, notificationDispatch) =>
-  useMutation({
+export const useLikeBlogMutation = () => {
+  const user = useUserValue();
+  const queryClient = useQueryClient();
+  const notificationDispatch = useNotificationDispatch();
+  return useMutation({
     mutationFn: (blog) => blogService.update({ ...blog, likes: blog.likes + 1 }, user.token),
     onSuccess: (data, variables) => {
       const likedBlog = variables;
@@ -38,9 +46,13 @@ export const useLikeBlogMutation = (queryClient, user, notificationDispatch) =>
       setNotification(notificationDispatch, `Failed to like blog: ${errorMessage}`, NotificationType.ERROR);
     },
   });
+};
 
-export const useDeleteBlogMutation = (queryClient, user, notificationDispatch) =>
-  useMutation({
+export const useDeleteBlogMutation = () => {
+  const user = useUserValue();
+  const queryClient = useQueryClient();
+  const notificationDispatch = useNotificationDispatch();
+  return useMutation({
     mutationFn: (deletedBlog) => blogService.deleteBlog(deletedBlog.id, user.token),
     onSuccess: (data, variables) => {
       const deletedBlog = variables;
@@ -56,3 +68,4 @@ export const useDeleteBlogMutation = (queryClient, user, notificationDispatch) =
       setNotification(notificationDispatch, `Failed to delete blog: ${errorMessage}`, NotificationType.ERROR);
     },
   });
+};

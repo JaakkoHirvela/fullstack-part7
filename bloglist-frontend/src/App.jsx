@@ -9,6 +9,7 @@ import UserContext, { CLEAR_USER, SET_USER } from "./components/User/UserContext
 import Blogs from "./components/Blog/Blogs";
 import Users from "./components/User/Users";
 import UserDetails from "./components/User/UserDetail";
+import BlogDetails from "./components/Blog/BlogDetails";
 
 const App = () => {
   const [user, userDispatch] = useContext(UserContext);
@@ -70,6 +71,7 @@ const App = () => {
       <Router>
         <Routes>
           <Route path="/" element={<Blogs user={user} />} />
+          <Route path="/blogs/:id" element={<BlogDetails />} />
           <Route path="/users" element={<Users />} />
           <Route path="/users/:id" element={<UserDetails />} />
         </Routes>
