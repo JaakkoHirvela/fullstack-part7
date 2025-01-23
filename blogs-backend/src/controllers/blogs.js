@@ -1,8 +1,5 @@
 const Blog = require("../models/blog");
-const User = require("../models/user");
 const blogsRouter = require("express").Router();
-const logger = require("../utils/logger");
-const jwt = require("jsonwebtoken");
 const { ObjectId } = require("mongoose").Types;
 const { userExtractor } = require("../utils/middleware");
 
@@ -61,6 +58,24 @@ blogsRouter.put("/:id", userExtractor, async (request, response) => {
   if (!updatedBlog) return response.status(404).json({ error: "blog not found" });
 
   response.status(200).json(updatedBlog);
+});
+
+/**
+ * Add a comment to a blog.
+ */
+blogsRouter.post("/:id/comments", async (request, response) => {
+  const { comment } = request.body;
+
+  if (!comment) return response.status(400).json({ error: "empty comment field" });
+
+  const blog = await Blog.findById(request.params.id);
+  
+  if (!blog) return response.status(404).json({ error: "blog not found" });
+
+  blog.comments = blog.comments ? blog.comments.concat(comment) : [comment];
+  const result = await blog.save();
+
+  response.status(201).json(result);
 });
 
 module.exports = blogsRouter;

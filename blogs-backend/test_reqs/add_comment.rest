@@ -1,0 +1,21 @@
+### 201
+POST http://localhost:3003/api/blogs/67754c15d8966f2262887ee3/comments
+Content-Type: application/json
+
+{
+  "comment": "Hyvä ploki :)))"
+}
+### 201
+POST http://localhost:3003/api/blogs/67754c15d8966f2262887ee3/comments
+Content-Type: application/json
+
+{
+  "comment": "Huono ploki :(((("
+}
+### 400: Cannot add empty comment
+POST http://localhost:3003/api/blogs/67754c15d8966f2262887ee3/comments
+Content-Type: application/json
+
+{
+  "comment": ""
+}

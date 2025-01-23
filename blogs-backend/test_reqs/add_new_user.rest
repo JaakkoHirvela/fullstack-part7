@@ -6,3 +6,25 @@ Content-Type: application/json
   "name": "Testi Teuvo",
   "password": "password"
 }
+
+### 
+
+POST http://localhost:3003/api/users
+Content-Type: application/json
+
+{
+  "username": "testi2",
+  "name": "Testi Tauno",
+  "password": "password"
+}
+
+### 
+
+POST http://localhost:3003/api/users
+Content-Type: application/json
+
+{
+  "username": "testi3",
+  "name": "Testi Tomppa",
+  "password": "password"
+}
