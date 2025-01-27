@@ -3,6 +3,7 @@ import useBlogs from "../../hooks/useBlogs";
 import { NotificationType, setNotification, useNotificationDispatch } from "../../utils/notificationUtils";
 import { useDeleteBlogMutation, useLikeBlogMutation } from "../../services/blogsMutations";
 import { useUserValue } from "../User/UserContext";
+import Comments from "./Comments";
 
 const BlogDetails = () => {
   const blogId = useParams().id;
@@ -43,13 +44,7 @@ const BlogDetails = () => {
       </div>
       <div>added by {blog.user.name}</div>
       <div>{blog.user.id === user.id && <button onClick={handleDelete}>remove</button>}</div>
-      {/* COMMENTS SECTION*/}
-      <h3>comments</h3>
-      <ul>
-        {blog.comments.map((comment, index) => (
-          <li key={index}>{comment}</li>
-        ))}
-      </ul>
+      <Comments blog={blog} />
     </div>
   );
 };
