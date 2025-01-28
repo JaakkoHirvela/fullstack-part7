@@ -1,25 +1,17 @@
-import PropTypes from "prop-types";
+import { TableCell, TableRow } from "@mui/material";
+import { Link } from "react-router-dom";
 
 const Blog = ({ blog }) => {
-  const blogStyle = {
-    paddingTop: 10,
-    paddingLeft: 2,
-    border: "solid",
-    borderWidth: 1,
-    marginBottom: 5,
-  };
-
   return (
-    <div style={blogStyle} className="blog">
-      <div>
-        {blog.title} {blog.author}
-      </div>
-    </div>
+    <TableRow key={blog.id}>
+      <TableCell>
+        <Link key={blog.id} to={`/blogs/${blog.id}`}>
+          {blog.title}
+        </Link>
+      </TableCell>
+      <TableCell>{blog.author}</TableCell>
+    </TableRow>
   );
-};
-
-Blog.propTypes = {
-  blog: PropTypes.object.isRequired,
 };
 
 export default Blog;

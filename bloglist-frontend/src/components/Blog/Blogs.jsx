@@ -2,9 +2,9 @@ import { useRef } from "react";
 import { useNewBlogMutation } from "../../services/blogsMutations";
 import BlogForm from "./BlogForm";
 import Togglable from "../Togglable";
-import Blog from "./Blog";
 import useBlogs from "../../hooks/useBlogs";
-import { Link } from "react-router-dom";
+import Blog from "./Blog";
+import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
 
 const Blogs = () => {
   const blogFormRef = useRef();
@@ -18,14 +18,22 @@ const Blogs = () => {
       <Togglable buttonLabel="new blog" ref={blogFormRef}>
         <BlogForm createBlog={newBlogMutation.mutate} />
       </Togglable>
-      {blogs &&
-        blogs
-          .sort((l, r) => r.likes - l.likes) // Sort in descending order.
-          .map((blog) => (
-            <Link key={blog.id} to={`/blogs/${blog.id}`}>
-              <Blog key={blog.id} blog={blog} />
-            </Link>
-          ))}
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead style={{ backgroundColor: "#f0f0f0" }}>
+            <TableRow>
+              <TableCell style={{ fontWeight: "bold" }}>Title</TableCell>
+              <TableCell style={{ fontWeight: "bold" }}>Author</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {blogs &&
+              blogs
+                .sort((l, r) => r.likes - l.likes) // Sort in descending order.
+                .map((blog) => <Blog key={blog.id} blog={blog} />)}
+          </TableBody>
+        </Table>
+      </TableContainer>
     </div>
   );
 };
