@@ -8,19 +8,19 @@ const BlogForm = ({ createBlog }) => {
     const { name, value } = event.target;
     setNewBlog({ ...newBlog, [name]: value });
   };
-
   const onSubmit = async (event) => {
     event.preventDefault();
     createBlog(newBlog);
     setNewBlog({ title: "", author: "", url: "" });
   };
-
+  const textFieldStyle = { marginBottom: 1 };
   return (
     <div>
       <h2>create new</h2>
       <form onSubmit={onSubmit}>
         <div>
-          <TextField style={{ marginBottom: 10 }}
+          <TextField
+            sx={textFieldStyle}
             label="title"
             required
             data-testid="title"
@@ -30,7 +30,8 @@ const BlogForm = ({ createBlog }) => {
           />
         </div>
         <div>
-          <TextField style={{ marginBottom: 10 }}
+          <TextField
+            sx={textFieldStyle}
             label="author"
             required
             data-testid="author"
@@ -40,7 +41,8 @@ const BlogForm = ({ createBlog }) => {
           />
         </div>
         <div>
-          <TextField style={{ marginBottom: 10 }}
+          <TextField
+            sx={textFieldStyle}
             label="url"
             required
             data-testid="url"

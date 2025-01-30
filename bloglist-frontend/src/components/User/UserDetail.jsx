@@ -1,5 +1,6 @@
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import useUsers from "../../hooks/useUsers";
+import { Box, Divider, List, ListItem, Typography } from "@mui/material";
 
 const UserDetails = () => {
   const userId = useParams().id;
@@ -11,15 +12,21 @@ const UserDetails = () => {
   if (!user) return null;
 
   return (
-    <div>
-      {user.name}
-      <h3>added blogs</h3>
-      <ul>
+    <Box sx={{ marginTop: 2 }}>
+      <Typography variant="h4" gutterBottom>
+        {user.name}
+      </Typography>
+      <Typography variant="h5" sx={{ borderBottom: 1, marginBottom: 1, maxWidth: 500 }}>
+        Added blogs
+      </Typography>
+      <List sx={{ maxWidth: 500 }}>
         {user.blogs.map((blog) => (
-          <li key={blog.id}>{blog.title}</li>
+          <ListItem key={blog.id} sx={{ borderBottom: 1, marginBottom: 1 }} component={Link} to={`/blogs/${blog.id}`}>
+            {blog.title}
+          </ListItem>
         ))}
-      </ul>
-    </div>
+      </List>
+    </Box>
   );
 };
 

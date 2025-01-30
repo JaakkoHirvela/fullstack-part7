@@ -4,7 +4,7 @@ import BlogForm from "./BlogForm";
 import Togglable from "../Togglable";
 import useBlogs from "../../hooks/useBlogs";
 import Blog from "./Blog";
-import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
+import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
 
 const Blogs = () => {
   const blogFormRef = useRef();
@@ -15,6 +15,9 @@ const Blogs = () => {
 
   return (
     <div>
+      <Typography variant="h2" sx={{ marginTop: 2, marginBottom: 2 }}>
+        Blogs
+      </Typography>
       <Togglable buttonLabel="new blog" ref={blogFormRef}>
         <BlogForm createBlog={newBlogMutation.mutate} />
       </Togglable>
