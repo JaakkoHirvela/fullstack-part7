@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import useUsers from "../../hooks/useUsers";
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
+import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
 
 const Users = ({}) => {
   const users = useUsers();
@@ -10,20 +10,20 @@ const Users = ({}) => {
       <Typography variant="h2" sx={{ marginTop: 2, marginBottom: 2 }}>
         Users
       </Typography>
-      <TableContainer component="paper">
-        <Table sx={{ maxWidth: 500 }}>
-          <TableHead>
+      <TableContainer component={Paper} sx={{ maxWidth: 500 }}>
+        <Table>
+          <TableHead sx={{ backgroundColor: "#f0f0f0" }}>
             <TableRow>
-              <TableCell sx={{ fontWeight: "bold" }}>name</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>blogs created</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Name</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Blogs created</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {users &&
               users.map((user) => (
                 <TableRow key={user.id}>
-                  <TableCell component={Link} to={`/users/${user.id}`}>
-                    {user.name}
+                  <TableCell>
+                    <Link to={`/users/${user.id}`}>{user.name}</Link>
                   </TableCell>
                   <TableCell>{user.blogs.length}</TableCell>
                 </TableRow>

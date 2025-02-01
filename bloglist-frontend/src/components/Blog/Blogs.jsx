@@ -23,10 +23,10 @@ const Blogs = () => {
       </Togglable>
       <TableContainer component={Paper}>
         <Table>
-          <TableHead style={{ backgroundColor: "#f0f0f0" }}>
+          <TableHead sx={{ backgroundColor: "#f0f0f0" }}>
             <TableRow>
-              <TableCell style={{ fontWeight: "bold" }}>Title</TableCell>
-              <TableCell style={{ fontWeight: "bold" }}>Author</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Title</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Author</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>

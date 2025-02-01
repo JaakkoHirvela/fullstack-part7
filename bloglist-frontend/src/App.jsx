@@ -44,15 +44,9 @@ const App = () => {
     }
   };
 
-  const handleLogout = () => {
-    window.localStorage.removeItem("loggedUser");
-    userDispatch({ type: CLEAR_USER });
-  };
-
   if (user === null) {
     return (
       <div>
-        <h2>Log in</h2>
         <NotificationBar />
         <LoginForm
           onSubmit={handleLogin}

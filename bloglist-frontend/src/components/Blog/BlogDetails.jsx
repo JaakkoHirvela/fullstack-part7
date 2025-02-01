@@ -4,6 +4,7 @@ import { NotificationType, setNotification, useNotificationDispatch } from "../.
 import { useDeleteBlogMutation, useLikeBlogMutation } from "../../services/blogsMutations";
 import { useUserValue } from "../User/UserContext";
 import Comments from "./Comments";
+import { Box, Button, Card, Divider, Typography } from "@mui/material";
 
 const BlogDetails = () => {
   const blogId = useParams().id;
@@ -35,15 +36,35 @@ const BlogDetails = () => {
 
   return (
     <div>
-      <h1>{`${blog.title} ${blog.author}`}</h1>
-      <a href={blog.url} target="_blank" onClick={handleLinkClick}>
-        {blog.url}
-      </a>
-      <div>
-        {blog.likes} likes <button onClick={() => likeBlogMutation.mutate(blog)}>like</button>
-      </div>
-      <div>added by {blog.user.name}</div>
-      <div>{blog.user.id === user.id && <button onClick={handleDelete}>remove</button>}</div>
+      <Card sx={{ marginTop: 2, marginBottom: 2 }}>
+        <Typography variant="h5" sx={{ paddingTop: 1, paddingLeft: 1, paddingBottom: 1, backgroundColor: "#f0f0f0" }}>
+          {`${blog.title} ${blog.author}`}
+        </Typography>
+        <Divider sx={{ marginBottom: 1 }} />
+        <Typography variant="body1" sx={{ marginLeft: 1 }}>
+          <a href={blog.url} target="_blank" onClick={handleLinkClick}>
+            {blog.url}
+          </a>
+        </Typography>
+        <Divider sx={{ marginBottom: 1, marginTop: 1 }} />
+        <Typography variant="body1" sx={{ marginLeft: 1, marginRight: 1 }}>
+          {blog.likes} likes
+        </Typography>
+        <Divider sx={{ marginBottom: 1, marginTop: 1 }} />
+        <Typography sx={{ marginLeft: 1, paddingBottom: 1 }} variant="body1">
+          added by {blog.user.name}
+        </Typography>
+      </Card>
+      <Box sx={{ display: "flex", gap: 1, marginBottom: 2 }}>
+        <Button variant="contained" onClick={() => likeBlogMutation.mutate(blog)}>
+          like
+        </Button>
+        {blog.user.id === user.id && (
+          <Button variant="contained" color="secondary" onClick={handleDelete}>
+            remove
+          </Button>
+        )}
+      </Box>
       <Comments blog={blog} />
     </div>
   );

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
-import { Button, TextField } from "@mui/material";
+import { Button, TextField, Typography } from "@mui/material";
 
 const BlogForm = ({ createBlog }) => {
   const [newBlog, setNewBlog] = useState({ title: "", author: "", url: "" });
@@ -16,7 +16,7 @@ const BlogForm = ({ createBlog }) => {
   const textFieldStyle = { marginBottom: 1 };
   return (
     <div>
-      <h2>create new</h2>
+      <Typography variant="h4">Create new</Typography>
       <form onSubmit={onSubmit}>
         <div>
           <TextField

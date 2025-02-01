@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useCommentBlogMutation } from "../../services/blogsMutations";
+import { TextField, Typography, Button, List, ListItem, ListItemIcon } from "@mui/material";
+import CircleIcon from "@mui/icons-material/Circle";
 
 const Comments = ({ blog }) => {
   const [comment, setComment] = useState("");
@@ -13,18 +15,21 @@ const Comments = ({ blog }) => {
 
   return (
     <>
-      <h3>comments</h3>
-
+      <Typography variant="h6">Comments</Typography>
       <form onSubmit={onSubmit}>
-        <input type="text" value={comment} onChange={(e) => setComment(e.target.value)} name="comment"></input>
-        <button type="submit">add comment</button>
+        <TextField label="comment" value={comment} onChange={(e) => setComment(e.target.value)} />
+        <Button type="submit">add comment</Button>
       </form>
-
-      <ul>
+      <List>
         {blog.comments.map((comment, index) => (
-          <li key={index}>{comment}</li>
+          <ListItem key={index}>
+            <ListItemIcon>
+              <CircleIcon fontSize="small" />
+            </ListItemIcon>
+            <Typography variant="body1">{comment}</Typography>
+          </ListItem>
         ))}
-      </ul>
+      </List>
     </>
   );
 };
